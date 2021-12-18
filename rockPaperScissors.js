@@ -1,96 +1,134 @@
+//Globals
+let roundNumber = 1;
 let playerScore = 0;
 let computerScore = 0;
 let draws = 0;
 
+//HTML elements
+const roundHeader = document.querySelector('.round-header');
+const playerPick = document.querySelector('.player-pick');
+const computerPick = document.querySelector('.computer-pick');
+const roundP = document.querySelector('.round-message');
+const playerP = document.querySelector('.player-result');
+const computerP = document.querySelector('.computer-result');
+const drawP = document.querySelector('.draws');
+const winnerP = document.querySelector('.winner-message');
+const newGameBtn = document.querySelector('.new-game');
+const btns = document.querySelectorAll('#Rock, #Paper, #Scissors');
+
+//Generates a random number between 0 and 2, and assigns the three
+//choices 0, 1, or 2.
+//Return Type: String
 function computerPlay() {
     let number = Math.floor(Math.random() * 3);
 
     if(number === 0) {
-        console.log("Computer: Rock");
         return "Rock".toString();
     }
     else if(number === 1) {
-        console.log("Computer: Paper");
         return "Paper".toString();
     }
     else if(number === 2) {
-        console.log("Computer: Scissors");
         return "Scissors".toString();
     }
 }
 
+//Takes a player and computer selection and compares the two to see
+//if player won, lost, or had drawn. After 5 rounds the player with
+//the most points wins.
+//Return Type: Void - Updates html elements
 function playRound(playerSelection, computerSelection) {
+    roundHeader.textContent = ("Round " + roundNumber.toString());
+
+    playerPick.textContent = playerSelection.toString();
+    computerPick.textContent = computerSelection.toString();
+
     playerSelection = playerSelection.toLowerCase();
 
     if(playerSelection === computerSelection.toLowerCase()) {
         draws++;
-        return "You Draw! Both chose the same";
+        roundP.textContent = "You Draw! Both chose the same";
     }
     else if(playerSelection === "rock" && computerSelection === "Scissors") {
         playerScore++;
-        return "You Win! Rock beats Scissors";
+        roundP.textContent = "You Win! Rock beats Scissors";
     }
     else if(playerSelection === "scissors" && computerSelection === "Paper") {
         playerScore++;
-        return "You Win! Scissors beats Paper";
+        roundP.textContent = "You Win! Scissors beats Paper";
     }
     else if(playerSelection === "paper" && computerSelection === "Rock") {
         playerScore++;
-        return "You Win! Paper beats Rock";
+        roundP.textContent = "You Win! Paper beats Rock";
     }
     else if(playerSelection === "rock" && computerSelection === "Paper") {
         computerScore++;
-        return "You Lose! Paper beats Rock";
+        roundP.textContent = "You Lose! Paper beats Rock";
     }
     else if(playerSelection === "scissors" && computerSelection === "Rock") {
         computerScore++;
-        return "You Lose! Rock beats Scissors";
+        roundP.textContent = "You Lose! Rock beats Scissors";
     }
     else if(playerSelection === "paper" && computerSelection === "Scissors") {
         computerScore++;
-        return "You Lose! Scissors beats Paper";
+        roundP.textContent = "You Lose! Scissors beats Paper";
     }
-    else {
-        return "Error";
+
+    playerP.textContent = ("Player: " + playerScore.toString());
+    computerP.textContent = ("Computer: " + computerScore.toString());
+    drawP.textContent = ("Draws: " + draws.toString());
+
+    roundNumber++;
+
+    if((computerScore + playerScore + draws) === 5) {
+        if(playerScore > computerScore) {
+            winnerP.textContent = "You win best of five rounds!";
+        }
+        else if(playerScore < computerScore) {
+            winnerP.textContent = "Computer wins best of five rounds!";
+        }
+        else if(playerScore === computerScore) {
+            winnerP.textContent = "You tied with the computer in best of five rounds.";
+        }
+
+        btns.forEach((btn) => {
+            btn.disabled = true;
+        });
+
+        newGameBtn.hidden = false;
     }
+    
 }
 
+//Sets the html and globals back to default.
+//Return Type: Void - Updates html elements
 function resetGame() {
+    roundNumber = 1;
     playerScore = 0;
     computerScore = 0;
     draws = 0;
+
+    roundHeader.textContent = "Round 0";
+    playerPick.textContent = "";
+    computerPick.textContent = "";
+    roundP.textContent = "Round not started!";
+    playerP.textContent = ("Player: " + playerScore.toString());
+    computerP.textContent = ("Computer: " + computerScore.toString());
+    drawP.textContent = ("Draws: " + draws.toString());
+    winnerP.textContent = "";
 }
 
-function game() {
-    for(let x = 1;x <= 5;x++) {
-        let player = prompt("Enter rock, paper, or scissors: ");
+btns.forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+        playRound(e.target.id.toString(), computerPlay());
+    });
+});
 
-        if(player.toLowerCase() === "rock" || player.toLowerCase() === "paper" || player.toLowerCase() === "scissors") {
-            console.log("Player: " + player);
-            console.log(playRound(player, computerPlay()));
-        }
-        else {
-            x--;
-            console.log("Invalid input. Restarting round...");
-        }
-    }
-
-    console.log("-----------Results-----------");
-    console.log("Player Score: " + playerScore.toString());
-    console.log("Computer Score: " + computerScore.toString());
-    console.log("Draws: " + draws.toString());
-
-    if(playerScore > computerScore) {
-        console.log("You win best of five rounds!");
-    }
-    else if(playerScore < computerScore) {
-        console.log("Computer wins best of five rounds!");
-    }
-    else {
-        console.log("You tied with the computer in best of five rounds.");
-    }
-
+newGameBtn.addEventListener('click', (e) => {
+    e.target.hidden = true;
     resetGame();
-}
 
-game();
+    btns.forEach((btn) => {
+        btn.disabled = false;
+    });
+});
